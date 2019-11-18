@@ -12,6 +12,12 @@ import './index.css';
 //     );
 // }
 
+// Unidirectional data flow. The function doesn't know where the data
+// for its props comes from
+function FormattedDate(props) {
+    return <h2>It is {props.date.toLocaleTimeString()}.</h2>;
+}
+
 // 5 steps to converting a function component into a class
 // 1) create ES6 class with same name that extends React.Component
 // 2) add a single empty method to it called render()
@@ -61,7 +67,8 @@ class Clock extends Component {
         return (
             <div>
                 <h1>Hello, world!</h1>
-                <h2>It is {this.state.date.toLocaleTimeString()}.</h2>
+                {/* <h2>It is {this.state.date.toLocaleTimeString()}.</h2> */}
+                <FormattedDate date={this.state.date} />
             </div>
         );
     }
@@ -69,8 +76,32 @@ class Clock extends Component {
 
 // setInterval(tick, 1000);
 
+// Each Clock sets up its own timer and updates independently
+function App() {
+    return (
+        <div>
+            <Clock />
+            <Clock />
+            <Clock />
+        </div>
+    );
+}
+
+function ActionLink() {
+    function handleClick(e) {
+        e.preventDefault();
+        console.log('The link was clicked.');
+    }
+
+    return (
+        <a href="#" onClick={handleClick}>
+            Click me
+        </a>
+    );
+}
+
 ReactDOM.render(
-    <Clock />,
+    <ActionLink />,
     document.getElementById('root')
 );
 
