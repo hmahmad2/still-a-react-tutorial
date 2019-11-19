@@ -1,132 +1,66 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
-// import App from './App';
 
-// function Clock(props) {
-//     return (
-//         <div>
-//             <h1>Hello, world!</h1>
-//             <h2>It is {props.date.toLocaleTimeString()}.</h2>
-//         </div>
-//     );
-// }
-
-// Unidirectional data flow. The function doesn't know where the data
-// for its props comes from
-function FormattedDate(props) {
-    return <h2>It is {props.date.toLocaleTimeString()}.</h2>;
-}
-
-// 5 steps to converting a function component into a class
-// 1) create ES6 class with same name that extends React.Component
-// 2) add a single empty method to it called render()
-// 3) Move the body of the function into the render() method.
-// 4) Replace props with this.props in the render() body.
-// 5) Delete the remaining empty function declaration.
-class Clock extends Component {
+class Toggle extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            date: new Date()
+            isToggleOn: true
         };
+
+        // This binding is necessary to make 'this' work in the callback
+        // Recommended solution to avoid performance problems
+        this.handleClick = this.handleClick.bind(this);
     }
 
-    /**
-     * The Following methods are "Lifecycle Methods"
-     */
-    // activate the timer when Clock is rendered in the DOM
-    // for the first time
-    // MOUNTING
-    componentDidMount() {
-        // since timerID doesn't really participate in the data flow,
-        // we can just add the field here
-        this.timerID = setInterval(
-            () => this.tick(),
-            1000
-        );
-    }
-    // free up resources when the DOM produced by Clock is removed
-    // UNMOUNTING
-    componentWillUnmount() {
-        clearInterval(this.timerID);
-    }
-
-    // Clock will call this every second
-    // use this.setState to schedule updates to the component local state
-    // meaning that every time this is called, the date of the Clock
-    // is updated to a new date.
-    // Bascially, only setState() will rerender a component.
-    tick() {
-        this.setState({
-            date: new Date()
-        });
+    handleClick() {
+        this.setState(state => ({
+            isToggleOn: !state.isToggleOn
+        }));
     }
 
     render() {
         return (
-            <div>
-                <h1>Hello, world!</h1>
-                {/* <h2>It is {this.state.date.toLocaleTimeString()}.</h2> */}
-                <FormattedDate date={this.state.date} />
-            </div>
+            // the callback to handleClick without the () works because
+            // we bound it to 'this' via bind()
+            <button onClick={this.handleClick}>
+                {this.state.isToggleOn ? 'ON' : 'OFF'}
+            </button>
         );
     }
 }
 
-// setInterval(tick, 1000);
-
-// Each Clock sets up its own timer and updates independently
-function App() {
-    return (
-        <div>
-            <Clock />
-            <Clock />
-            <Clock />
-        </div>
-    );
-}
-
-function ActionLink() {
-    function handleClick(e) {
-        e.preventDefault();
-        console.log('The link was clicked.');
+class LoggingButton extends Component {
+    // This syntax ensures 'this' is bound within handleClick
+    // Warning: this is *EXPERIMENTAL* syntax
+    handleClick = () => {
+        console.log('this is:', this);
     }
 
-    return (
-        <a href="#" onClick={handleClick}>
-            Click me
-        </a>
-    );
+    // render() {
+    //     return (
+    //         // this syntax is enabled by default in Create React App
+    //         <button onClick={this.handleClick}>
+    //             Click me
+    //         </button>
+    //     );
+    // }
+
+    render() {
+        // This syntax ensures that 'this' is bound within handleClick
+        return (
+            // a different callback  is created each time LoggingButton
+            // renders. Problematic if passed as a prop to lower components,
+            // might force a re-rendering
+            <button onClick={(e) => this.handleClick(e)}>
+                Click me
+            </button>
+        );
+    }
 }
 
 ReactDOM.render(
-    <ActionLink />,
+    // {/* <Toggle />, */}
+    <LoggingButton />,
     document.getElementById('root')
 );
-
-/**
- * 1) when Clock is passed to ReactDOM.render(), React calls constructor
- *  of Clock. Since it's supposed to display the current time, it
- *  initializes this.state with an object including the current time. This
- *  state will be updated
- * 
- * 2) React then calls Clock's render() method. This details how React
- *  knows what should be displayed on screen. React updates the DOM to
- *  match Clock's render output.
- * 
- * 3) When Clock output is inserted in the DOM, React calls componentDidMount()
- *  lifecycle method. Inside, Clock component asks browser to set up a timer
- *  to call the components tick() method once a second
- * 
- * 4) Every second the browser cals tick(). Inside, Clock schedules a UI
- *  update via calling setState() with an object containing the current
- *  time. Using this setState() call, React knows the state has been
- *  changed and calls render() again to learn what should be on screen.
- *  This time, this.state.date in the render() method will be different,
- *  and so the render output will include the updated time. React updates
- *  the DOM accordingly
- * 
- * 5) If Clock is ever removed from the DOM, React calls the
- *  componentWillUnmount() lifecycle method so the timer is stopped.
- */
