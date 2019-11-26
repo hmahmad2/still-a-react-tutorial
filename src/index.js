@@ -1,4 +1,4 @@
-import React, { Components } from 'react';
+import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 
 function UserGreeting(props) {
@@ -47,21 +47,110 @@ class LoginControl extends Component {
         };
     }
 
+    // Change isLoggedIn to true from false
     handleLoginClick() {
         this.setState({
             isLoggedIn: true
         });
     }
 
+    // Change isLoggedIn to false
     handleLogoutClick() {
         this.setState({
             isLoggedIn: false
         });
     }
+
+    render() {
+        const isLoggedIn = this.state.isLoggedIn;
+        let button;
+
+        // Set an element to a button. I can do that.
+        if (isLoggedIn) {
+            button = <LogoutButton onClick={this.handleLogoutClick} />;
+        } else {
+            button = <LoginButton onClick={this.handleLoginClick} />;
+        }
+
+        // // Reusing <Greeting /> to help denote what state we're in
+        // return (
+        //     <div>
+        //         <Greeting isLoggedIn={isLoggedIn} />
+        //         {button}
+        //     </div>
+        // );
+
+        return (
+            <div>
+                {isLoggedIn ? (
+                    <LogoutButton onClick={this.handleLogoutClick} />
+                ) : (
+                    <LoginButton onClick={this.handleLoginClick} />
+                )}
+            </div>
+        );
+    }
 }
 
+// {true && expression} always evaluates to {expression}
+// {false && expression} always evaluates to {false}
+function Mailbox(props) {
+    const unreadMessages = props.unreadMessages;
+    return (
+        <div>
+            <h1>Hello!</h1>
+            {unreadMessages.length > 0 &&
+                <h2>
+                    You have {unreadMessages.length} unread messages.
+                </h2>
+            }
+        </div>
+    );
+}
+
+function WarningBanner(props) {
+    if (!props.warn) {
+        return null;
+    }
+
+    return (
+        <div className="warning">
+            Warning!
+        </div>
+    );
+}
+
+class Page extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {showWarning: true};
+        this.handleToggleClick = this.handleToggleClick.bind(this);
+    }
+
+    handleToggleClick() {
+        this.setState(state => ({
+            showWarning: !state.showWarning
+        }));
+    }
+
+    render() {
+        return (
+            <div>
+                <WarningBanner warn={this.state.showWarning} />
+                <button onClick={this.handleToggleClick}>
+                    {this.state.showWarning ? 'Hide' : 'Show'}
+                </button>
+            </div>
+        )
+    };
+}
+
+const messages = ['React', 'Re: React', 'Re: Re: React'];
 ReactDOM.render(
     // // See what happens if we set isLoggedIn={true}
     // <Greeting isLoggedIn={false} />,
+    // {/* <LoginControl />, */}
+    <Page />,
+    // {/* <Mailbox unreadMessages={messages} />, */}
     document.getElementById('root')
 );
